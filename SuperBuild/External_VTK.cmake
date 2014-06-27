@@ -23,7 +23,7 @@ ProjectDependancyPush(CACHED_proj ${proj})
 # SlicerMacroCheckExternalProjectDependency
 set(extProjName VTK) #The find_package known name
 set(proj        VTK) #This local name
-set(${extProjName}_REQUIRED_VERSION "6.0")  #If a required version is necessary, then set this, else leave blank
+set(${extProjName}_REQUIRED_VERSION "6")  #If a required version is necessary, then set this, else leave blank
 
 #if(${USE_SYSTEM_${extProjName}})
 #  unset(${extProjName}_DIR CACHE)
@@ -147,7 +147,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
     )
   ### --- End Project specific additions
   set(${proj}_REPOSITORY ${git_protocol}://vtk.org/VTK.git)
-  set(${proj}_GIT_TAG "v6.0.0")
+  set(${proj}_GIT_TAG "v6.1.0")
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
@@ -169,10 +169,17 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${${proj}_DEPENDENCIES}
     )
 
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-6.0)
+  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-6.1)
 else()
   if(${USE_SYSTEM_${extProjName}})
-    find_package(${extProjName} ${${extProjName}_REQUIRED_VERSION} REQUIRED)
+    find_package(${extProjName} NO_MODULE )
+    if( NOT ${VTK_VERSION} VERSION_EQUAL ${${extProjName}_REQUIRED_VERSION} )
+      if( ${VTK_VERSION} VERSION_LESS ${${extProjName}_REQUIRED_VERSION} )
+        message( FATAL_ERROR "Could not find a configuration file for package \"VTK\" that is compatible with requested version ${${extProjName}_REQUIRED_VERSION}.")
+      else()
+        message( WARNING "Could not find a configuration file for package \"VTK\" that matches exactly the requested version ${${extProjName}_REQUIRED_VERSION}. Using found VTK version ${VTK_VERSION} which is newer instead.")
+      endif()
+    endif()
     message("USING the system ${extProjName}, set ${extProjName}_DIR=${${extProjName}_DIR}")
   endif()
   # The project is provided using ${extProjName}_DIR, nevertheless since other
