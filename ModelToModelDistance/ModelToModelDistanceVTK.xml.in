@@ -47,6 +47,15 @@ This work was funded by National Institute of Dental and Craniofacial Research (
       <default>0</default>
       <description><![CDATA[Minimum Sample Frequency]]></description>
     </boolean>
+    <string-enumeration>
+      <name>distanceType</name>
+      <longflag>--distanceType</longflag>
+      <description>Choose the metric used to compute the distance between the 2 given meshes</description>
+      <label>Distance</label>
+      <element>Signed closest point</element>
+      <element>Absolute closest point</element>
+      <default>Corresponding point to point</default>
+    </string-enumeration>
   </parameters>
 </executable>
 
