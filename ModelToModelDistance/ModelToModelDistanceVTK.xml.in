@@ -5,7 +5,7 @@
   <description>
    This module computes distance point by point between 2 meshes
   </description>
-  <version>1.0</version>
+  <version>1.1</version>
   <documentation-url></documentation-url>
   <license></license>
   <contributor>Francois Budin, Juliette Pera</contributor>
@@ -39,22 +39,15 @@ This work was funded by National Institute of Dental and Craniofacial Research (
       <flag>-o</flag>
       <description><![CDATA[.vtk Output file]]></description>
     </geometry>
-    <boolean>
-      <name>signedDistance</name>
-      <label>Signed Distance</label>
-      <longflag>--signed_distance</longflag>
-      <flag>-d</flag>
-      <default>0</default>
-      <description><![CDATA[Minimum Sample Frequency]]></description>
-    </boolean>
     <string-enumeration>
       <name>distanceType</name>
       <longflag>--distanceType</longflag>
       <description>Choose the metric used to compute the distance between the 2 given meshes</description>
       <label>Distance</label>
-      <element>Signed closest point</element>
-      <element>Absolute closest point</element>
-      <default>Corresponding point to point</default>
+      <element>signed_closest_point</element>
+      <element>absolute_closest_point</element>
+      <element>corresponding_point_to_point</element>
+      <default>signed_closest_point</default>
     </string-enumeration>
   </parameters>
 </executable>

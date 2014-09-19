@@ -108,6 +108,7 @@ endif()
 option( BUILD_TESTING "Build Testing" ON )
 IF(BUILD_TESTING)
   include(CTest)
+  include(ExternalData)
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 
