@@ -1,4 +1,4 @@
-#include "../dataM.h"
+#include "dataM.h"
 #include "vtkCellArray.h"
 #include "vtkProperty.h"
 
@@ -8,11 +8,16 @@ int main( int argc , char* argv[] )
 {
     std::cout << " BEGIN TEST  ----> DATAM.H " << std::endl;
 
+    if( argc < 2 )
+    {
+      std::cerr << argv[0] << " file1.vtk" << std::endl ;
+      return EXIT_FAILURE ;
+    }
     dataM dataTest;
 
     //**************************************************************************************
     std::cout << " Test : Name " << std::endl;
-    std::string inName = "/work/jpera/Data/Data_Slicer3/Registered_condyle_V2.vtk" ;
+    std::string inName = argv[1] ;
     std::string outName = "out";
     dataTest.setName( inName );
     outName = dataTest.getName();
@@ -67,7 +72,7 @@ int main( int argc , char* argv[] )
     //**************************************************************************************
     std::cout << " Test : getActor | updateproperties " << std::endl;
     vtkSmartPointer <vtkActor> outActor = vtkSmartPointer <vtkActor>::New();
-
+    dataTest.setTypeFile( 1 ) ; // 1 = vtk
     dataTest.initialization();
     outActor = dataTest.getActor();
 
@@ -140,8 +145,8 @@ int main( int argc , char* argv[] )
     std::cout << " Test : SignedDist " << std::endl;
     bool inSignedDist = true;
     bool outSignedDist = false;
-    dataTest.setSignedDistance( inSignedDist );
-    outSignedDist = dataTest.getSignedDistance();
+    dataTest.setTypeDistance( inSignedDist );
+    outSignedDist = dataTest.getTypeDistance();
     if( outSignedDist != inSignedDist )
     {
         std::cout << " ERROR : signed dist " << std::endl;
@@ -161,17 +166,21 @@ int main( int argc , char* argv[] )
     }
 
     //**************************************************************************************
-    std::cout << " Test : GetPolyData " << std::endl;
+    std::cout << " Test : SetPolyData/GetPolyData " << std::endl;
 
     vtkSmartPointer <vtkPolyData> refData = vtkSmartPointer <vtkPolyData>::New();
     vtkSmartPointer <vtkPolyDataReader> Reader = vtkSmartPointer <vtkPolyDataReader>::New();
     vtkSmartPointer <vtkTriangleFilter> Triangler = vtkSmartPointer <vtkTriangleFilter>::New();
+    vtkSmartPointer <vtkCleanPolyData> Cleaner = vtkSmartPointer <vtkCleanPolyData>::New();
 
-    Reader -> SetFileName( "/work/jpera/Data/Data_Slicer3/Registered_condyle_V2.vtk" );
+    Reader -> SetFileName( argv[1] );
     Reader -> Update();
-    Triangler -> SetInputData( Reader -> GetOutput() );
+    Cleaner -> SetInputData( Reader -> GetOutput() );
+    Cleaner -> Update();
+    Triangler -> SetInputData( Cleaner -> GetOutput() );
     Triangler -> Update();
     refData = Triangler -> GetOutput();
+    dataTest.setPolyData( refData );
 
     vtkSmartPointer <vtkPolyData> outData = vtkSmartPointer <vtkPolyData>::New();
 
@@ -198,25 +207,6 @@ int main( int argc , char* argv[] )
 
 
     //**************************************************************************************
-    std::cout << " Test : SetPolyData " << std::endl;
-
-    Reader -> SetFileName( "/work/jpera/Data/Data_Slicer3/Registered_condyle_V8.vtk" );
-    Reader -> Update();
-    Triangler -> SetInputData( Reader -> GetOutput() );
-    Triangler -> Update();
-    refData = Triangler -> GetOutput();
-
-    dataTest.setPolyData( refData );
-
-    outData = dataTest.getPolyData();
-
-    if( testPolyData( refData , outData ) == 1 )
-    {
-        std::cout << " ERROR : setPolyData" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    //**************************************************************************************
     std::cout << " END TEST " << std::endl;
     return EXIT_SUCCESS;
 }
@@ -225,20 +215,20 @@ int main( int argc , char* argv[] )
 int testPolyData( vtkSmartPointer <vtkPolyData> inData , vtkSmartPointer <vtkPolyData> outData )
 {
     // comparer pointeurs
-    std::cout << "          -number of points  " << std::endl;
+    std::cout << "          -number of points  " << outData -> GetNumberOfPoints() << " " <<  inData -> GetNumberOfPoints()<<std::endl;
     if( outData -> GetNumberOfPoints() != inData -> GetNumberOfPoints() )
     {
         std::cout << " ERROR : number of points " << std::endl;
         return 1;
     }
 
-    std::cout << "          -number of cells  " << std::endl;
-    if( outData -> GetNumberOfCells() != inData -> GetNumberOfCells() )
+    vtkIdType b = outData -> GetNumberOfCells();
+    std::cout << "          -number of cells  " << b << " " << inData -> GetNumberOfCells() << std::endl;
+    if( b != inData -> GetNumberOfCells() )
     {
         std::cout << " ERROR : number of cells " << std::endl;
         return 1;
     }
-    vtkIdType b = outData -> GetNumberOfCells();
 
 
     std::cout << "          -get points  " << std::endl;

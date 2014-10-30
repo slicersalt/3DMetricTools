@@ -50,6 +50,8 @@ dataM::dataM( std::string Name )
     m_Dmin = -1.0;
     m_Dmax = 1.0;
     m_Delta = 0.5;
+
+    m_TypeFile = 0 ;
 }
 
 

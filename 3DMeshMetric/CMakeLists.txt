@@ -100,12 +100,3 @@ endif()
 
 
 
-# for the CTest
-set(BUILD_TESTING ON CACHE BOOL "Build, configure and copy testing files")
-if( BUILD_TESTING )
-  enable_testing()
-  add_subdirectory( Testing )
-endif()
-
-
-
