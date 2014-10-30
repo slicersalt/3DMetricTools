@@ -188,13 +188,13 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     return 0 ;
 }
 
+#ifdef USE_VTK_FILTER
 int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
                           vtkSmartPointer< vtkPolyData > &inPolyData2 ,
                           bool signedDistance ,
                           vtkSmartPointer< vtkPolyData > &outPolyData
                           )
 {
-#ifdef USE_VTK_FILTER
     vtkSmartPointer<vtkDistancePolyDataFilter> distanceFilter =
             vtkSmartPointer<vtkDistancePolyDataFilter>::New();
 #if VTK_MAJOR_VERSION > 5
@@ -236,6 +236,14 @@ int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
 #endif
     Cleaner->Update() ;
 #else
+int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
+                          vtkSmartPointer< vtkPolyData > &inPolyData2 ,
+                          bool signedDistance ,
+                          vtkSmartPointer< vtkPolyData > &outPolyData ,
+                          int minSampleFrequency ,
+                          double samplingStep
+                          )
+{
     meshValmet errorComputeFilter ;
     errorComputeFilter.SetData1( inPolyData1 );
     errorComputeFilter.SetData2( inPolyData2 );
@@ -376,10 +384,17 @@ int main( int argc , char* argv[] )
         {
             signedDistance = true ;
         }
+#ifdef USE_VTK_FILTER
         if( ClosestPointDistance( inPolyData1 , inPolyData2 , signedDistance , outPolyData ) )
         {
             return EXIT_FAILURE ;
         }
+#else
+        if( ClosestPointDistance( inPolyData1 , inPolyData2 , signedDistance , outPolyData , minSampleFrequency , samplingStep ) )
+        {
+            return EXIT_FAILURE ;
+        }
+#endif
     }
 
     return WriteVTK( vtkOutput , outPolyData ) ;

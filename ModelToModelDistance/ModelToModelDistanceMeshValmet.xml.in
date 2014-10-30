@@ -9,27 +9,25 @@
   <documentation-url></documentation-url>
   <license></license>
   <contributor>Francois Budin, Juliette Pera</contributor>
-<acknowledgements>
-This work was funded by National Institute of Dental and Craniofacial Research (NIDCR) and the National Institute of Biomedical Imaging and Bioengineering (NIBIB) through the Grant R01 DE024450
-</acknowledgements>
+  <acknowledgements>This work was funded by National Institute of Dental and Craniofacial Research (NIDCR) and the National Institute of Biomedical Imaging and Bioengineering (NIBIB) through the Grant R01 DE024450</acknowledgements>
   <parameters>
     <label>Input/Output</label>
     <description>Input/output parameters</description>
     <geometry fileExtensions=".vtk">
       <name>vtkFile1</name>
-      <label>VTK File 1</label>
+      <label>Source Model</label>
       <channel>input</channel>
-      <longflag>--vtkfile1</longflag>
-      <flag>-i</flag>
-      <description><![CDATA[.vtk Input file 1]]></description>
+      <longflag>--source</longflag>
+      <flag>-s</flag>
+      <description><![CDATA[Source Model (*.vtk or *.vtp)]]></description>
     </geometry>
     <geometry fileExtensions=".vtk">
       <name>vtkFile2</name>
-      <label>VTK File 2</label>
+      <label>Target Model</label>
       <channel>input</channel>
-      <longflag>--vtkfile2</longflag>
-      <flag>-j</flag>
-      <description><![CDATA[.vtk Input file 2]]></description>
+      <longflag>--targe</longflag>
+      <flag>-t</flag>
+      <description><![CDATA[Target Model (*.vtk or *.vtp)]]></description>
     </geometry>
     <geometry fileExtensions=".vtk">
       <name>vtkOutput</name>
@@ -37,13 +35,13 @@ This work was funded by National Institute of Dental and Craniofacial Research (
       <channel>output</channel>
       <longflag>--output</longflag>
       <flag>-o</flag>
-      <description><![CDATA[.vtk Output file]]></description>
+      <description><![CDATA[Output Model (*.vtk or *.vtp). The output model will have the content of this file (points and fields) as well as the newly computed distance information. The distance is computed at every point of the source model to the target model.]]></description>
     </geometry>
     <double>
       <name>samplingStep</name>
       <label>Sampling Step</label>
       <longflag>--sampling_step</longflag>
-      <flag>-s</flag>
+      <flag>-p</flag>
       <default>0.5</default>
       <description><![CDATA[Sampling Step]]></description>
     </double>
