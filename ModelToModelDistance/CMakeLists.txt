@@ -1,21 +1,10 @@
 # name of the project
 PROJECT( ModelToModelDistance )
 
-if( Use_VTK_Filter )
-  ADD_DEFINITIONS(-DUSE_VTK_FILTER=1)
-  set( MeshValmetLib "" )
-  configure_file(ModelToModelDistanceVTK.xml.in ${CMAKE_CURRENT_BINARY_DIR}/ModelToModelDistance.xml)
-else()
-  set( MeshValmetLib MeshValmetLib )
-  configure_file(ModelToModelDistanceMeshValmet.xml.in ${CMAKE_CURRENT_BINARY_DIR}/ModelToModelDistance.xml)
-endif()
-
 SEMMacroBuildCLI(
     NAME ModelToModelDistance
     ${STATIC}
-    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${MeshValmetLib_SOURCE_DIRECTORY}
-    LINK_DIRECTORIES ${MeshValmetLib_BINARY_DIRECTORY}
-    TARGET_LIBRARIES ${MeshValmetLib} ${VTK_LIBRARIES}
+    TARGET_LIBRARIES ${VTK_LIBRARIES}
     INSTALL_RUNTIME_DESTINATION ${INSTALL_RUNTIME_DESTINATION}
     INSTALL_LIBRARY_DESTINATION ${INSTALL_LIBRARY_DESTINATION}
     INSTALL_ARCHIVE_DESTINATION ${INSTALL_ARCHIVE_DESTINATION}

@@ -1,10 +1,6 @@
 // My library
 #include "ModelToModelDistanceCLP.h"
-#ifdef USE_VTK_FILTER
 #include <vtkDistancePolyDataFilter.h>
-#else
-#include "MeshValmet.h"
-#endif
 #include <vtkVersion.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkXMLPolyDataWriter.h>
@@ -86,18 +82,10 @@ private:
 int TriangulateAndClean(vtkSmartPointer<vtkPolyData> &polyData )
 {
     vtkSmartPointer <vtkCleanPolyData> Cleaner = vtkSmartPointer <vtkCleanPolyData>::New() ;
-#if VTK_MAJOR_VERSION > 5
     Cleaner->SetInputData( polyData ) ;
-#else
-    Cleaner->SetInput( polyData ) ;
-#endif
     Cleaner->Update() ;
     vtkSmartPointer <vtkTriangleFilter> Triangler = vtkSmartPointer <vtkTriangleFilter>::New() ;
-#if VTK_MAJOR_VERSION > 5
     Triangler->SetInputData( Cleaner->GetOutput() ) ;
-#else
-    Triangler->SetInput( Cleaner->GetOutput() ) ;
-#endif
     Triangler->Update() ;
     polyData = Triangler->GetOutput() ;
     return 0 ;
@@ -125,11 +113,7 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     }
     //Compute normals on inPolyData1
     vtkSmartPointer< vtkPolyDataNormals > normalGenerator = vtkSmartPointer<vtkPolyDataNormals>::New() ;
-    #if ( VTK_MAJOR_VERSION < 6 )
-    normalGenerator->SetInput( inPolyData1 );
-    #else
     normalGenerator->SetInputData( inPolyData1 ) ;
-    #endif
     normalGenerator->SplittingOff() ;
     normalGenerator->ComputePointNormalsOn() ;
     normalGenerator->ComputeCellNormalsOff() ;
@@ -188,7 +172,6 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     return 0 ;
 }
 
-#ifdef USE_VTK_FILTER
 int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
                           vtkSmartPointer< vtkPolyData > &inPolyData2 ,
                           bool signedDistance ,
@@ -197,13 +180,8 @@ int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
 {
     vtkSmartPointer<vtkDistancePolyDataFilter> distanceFilter =
             vtkSmartPointer<vtkDistancePolyDataFilter>::New();
-#if VTK_MAJOR_VERSION > 5
     distanceFilter->SetInputData( 0, inPolyData1 ) ;
     distanceFilter->SetInputData( 1, inPolyData2 ) ;
-#else
-    distanceFilter->SetInput( 0, inPolyData1 ) ;
-    distanceFilter->SetInput( 1, inPolyData2 ) ;
-#endif
     distanceFilter->SetSignedDistance( signedDistance ) ;
     distanceFilter->Update();
     //We are only interested in the point distance, not in the cell distance, so we remove the cell distance
@@ -229,36 +207,8 @@ int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     ScalarsConst->SetName( "Original" );
     distancePolyData->GetPointData()->AddArray( ScalarsConst );
     vtkSmartPointer <vtkCleanPolyData> Cleaner = vtkSmartPointer <vtkCleanPolyData>::New() ;
-#if VTK_MAJOR_VERSION > 5
     Cleaner->SetInputData( distancePolyData ) ;
-#else
-    Cleaner->SetInput( distancePolyData ) ;
-#endif
     Cleaner->Update() ;
-#else
-int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
-                          vtkSmartPointer< vtkPolyData > &inPolyData2 ,
-                          bool signedDistance ,
-                          vtkSmartPointer< vtkPolyData > &outPolyData ,
-                          int minSampleFrequency ,
-                          double samplingStep
-                          )
-{
-    meshValmet errorComputeFilter ;
-    errorComputeFilter.SetData1( inPolyData1 );
-    errorComputeFilter.SetData2( inPolyData2 );
-    errorComputeFilter.SetSignedDistance( signedDistance ) ;
-    errorComputeFilter.SetSamplingStep( samplingStep ) ;
-    errorComputeFilter.SetMinSampleFrequency( minSampleFrequency ) ;
-    errorComputeFilter.CalculateError() ;
-    vtkSmartPointer <vtkCleanPolyData> Cleaner = vtkSmartPointer <vtkCleanPolyData>::New() ;
-#if VTK_MAJOR_VERSION > 5
-    Cleaner->SetInputData( errorComputeFilter.GetFinalData() ) ;
-#else
-    Cleaner->SetInput( errorComputeFilter.GetFinalData() ) ;
-#endif
-    Cleaner->Update() ;
-#endif
     outPolyData = Cleaner->GetOutput() ;
     return 0 ;
 }
@@ -305,11 +255,7 @@ int WriteVTK( std::string output , vtkSmartPointer<vtkPolyData> &polyData )
         vtkSmartPointer<vtkPolyDataWriter> writer = vtkPolyDataWriter::New() ;
         writer->SetFileName( output.c_str() ) ;
         writer->AddObserver( vtkCommand::ErrorEvent , errorObserver ) ;
-#if VTK_MAJOR_VERSION > 5
         writer->SetInputData( polyData ) ;
-#else
-        writer->SetInput( polyData ) ;
-#endif
         writer->Update();
     }
     else if( output.rfind( ".vtp" ) != std::string::npos )
@@ -317,11 +263,7 @@ int WriteVTK( std::string output , vtkSmartPointer<vtkPolyData> &polyData )
         vtkSmartPointer< vtkXMLPolyDataWriter > writer = vtkXMLPolyDataWriter::New() ;
         writer->SetFileName( output.c_str() ) ;
         writer->AddObserver( vtkCommand::ErrorEvent , errorObserver ) ;
-#if VTK_MAJOR_VERSION > 5
         writer->SetInputData( polyData ) ;
-#else
-        writer->SetInput( polyData ) ;
-#endif
         writer->Update() ;
     }
     else
@@ -384,18 +326,10 @@ int main( int argc , char* argv[] )
         {
             signedDistance = true ;
         }
-#ifdef USE_VTK_FILTER
         if( ClosestPointDistance( inPolyData1 , inPolyData2 , signedDistance , outPolyData ) )
         {
             return EXIT_FAILURE ;
         }
-#else
-        if( ClosestPointDistance( inPolyData1 , inPolyData2 , signedDistance , outPolyData , minSampleFrequency , samplingStep ) )
-        {
-            return EXIT_FAILURE ;
-        }
-#endif
     }
-
     return WriteVTK( vtkOutput , outPolyData ) ;
 }
