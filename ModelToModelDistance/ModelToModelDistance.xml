@@ -41,6 +41,7 @@ This work was funded by National Institute of Dental and Craniofacial Research (
     </geometry>
     <string-enumeration>
       <name>distanceType</name>
+      <flag>-d</flag>
       <longflag>--distanceType</longflag>
       <description>Choose the metric used to compute the distance between the 2 given meshes</description>
       <label>Distance</label>
@@ -49,6 +50,13 @@ This work was funded by National Institute of Dental and Craniofacial Research (
       <element>corresponding_point_to_point</element>
       <default>signed_closest_point</default>
     </string-enumeration>
+    <boolean>
+      <name>targetInFields</name>
+      <label>Save target name in distance fields</label>
+      <longflag>--targetInFields</longflag>
+      <flag>-f</flag>
+      <description><![CDATA[Saves the target model name as part of the distance fields saved in the output file. This allows a user to know against which target shape the distances have been computed.]]></description>
+    </boolean>
   </parameters>
 </executable>
 

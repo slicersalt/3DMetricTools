@@ -18,6 +18,7 @@
 #include <vtkMath.h>
 #include <vtkPolyDataNormals.h>
 #include <vtkFloatArray.h>
+#include <vtksys/SystemTools.hxx>
 
 //class ErrorObserver copied from http://www.vtk.org/Wiki/VTK/Examples/Cxx/Utilities/ObserveError
 class ErrorObserver : public vtkCommand
@@ -101,7 +102,8 @@ void PointsToVec( double p1[] , double p2[] , double vec[] )
 }
 
 int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
-                                 vtkSmartPointer< vtkPolyData > &inPolyData2
+                                 vtkSmartPointer< vtkPolyData > &inPolyData2 ,
+                                 std::string outputFieldSuffix
                                  )
 {
     vtkIdType nbPoints1 = inPolyData1->GetNumberOfPoints() ;
@@ -123,19 +125,25 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     vtkSmartPointer< vtkFloatArray > normalsArray = vtkFloatArray::SafeDownCast( inPolyData1->GetPointData()->GetNormals() ) ;
     /////////////////////////////////
     vtkSmartPointer <vtkDoubleArray> distanceArray = vtkSmartPointer <vtkDoubleArray>::New();
-    distanceArray->SetName( "AbsolutePointToPointDistance" ) ;
+    std::string fieldName = "AbsolutePointToPointDistance" + outputFieldSuffix ;
+    distanceArray->SetName( fieldName.c_str() ) ;
     vtkSmartPointer <vtkDoubleArray> distanceVecArray = vtkSmartPointer <vtkDoubleArray>::New();
     distanceVecArray->SetNumberOfComponents( 3 ) ;
-    distanceVecArray->SetName( "PointToPointVector" ) ;
+    fieldName = "PointToPointVector" + outputFieldSuffix ;
+    distanceVecArray->SetName( fieldName.c_str() ) ;
     vtkSmartPointer <vtkDoubleArray> signedDistanceArray = vtkSmartPointer <vtkDoubleArray>::New();
-    signedDistanceArray->SetName( "SignedPointToPointDistance" ) ;
+    fieldName = "SignedPointToPointDistance" + outputFieldSuffix ;
+    signedDistanceArray->SetName( fieldName.c_str()) ;
     vtkSmartPointer <vtkDoubleArray> signedMagNormDirArray = vtkSmartPointer <vtkDoubleArray>::New();
-    signedMagNormDirArray->SetName( "SignedMagNormDirDistance" ) ;
+    fieldName = "SignedMagNormDirDistance" + outputFieldSuffix ;
+    signedMagNormDirArray->SetName( fieldName.c_str() ) ;
     vtkSmartPointer <vtkDoubleArray> magNormDirArray = vtkSmartPointer <vtkDoubleArray>::New();
-    magNormDirArray->SetName( "AbsoluteMagNormDirDistance" ) ;
+    fieldName = "AbsoluteMagNormDirDistance" + outputFieldSuffix ;
+    magNormDirArray->SetName( fieldName.c_str() ) ;
     vtkSmartPointer <vtkDoubleArray> magNormDirVecArray = vtkSmartPointer <vtkDoubleArray>::New();
     magNormDirVecArray->SetNumberOfComponents( 3 ) ;
-    magNormDirVecArray->SetName( "MagNormVector" ) ;
+    fieldName = "MagNormVector" + outputFieldSuffix ;
+    magNormDirVecArray->SetName( fieldName.c_str() ) ;
     double absoluteDistance ;
     double* p1 ;
     double* p2 ;
@@ -175,7 +183,8 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
 int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
                           vtkSmartPointer< vtkPolyData > &inPolyData2 ,
                           bool signedDistance ,
-                          vtkSmartPointer< vtkPolyData > &outPolyData
+                          vtkSmartPointer< vtkPolyData > &outPolyData ,
+                          std::string outputFieldSuffix
                           )
 {
     vtkSmartPointer<vtkDistancePolyDataFilter> distanceFilter =
@@ -190,11 +199,11 @@ int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     std::string distanceName ;
     if( signedDistance )
     {
-        distanceName = "Signed" ;
+        distanceName = "Signed" + outputFieldSuffix ;
     }
     else
     {
-        distanceName = "Absolute" ;
+        distanceName = "Absolute" + outputFieldSuffix;
     }
     distanceFilter->GetOutput()->GetPointData()->GetArray("Distance")->SetName(distanceName.c_str()) ;
     //We add a constant field that we call "original" that allows to show easily the model with no color map (constant color)
@@ -310,10 +319,15 @@ int main( int argc , char* argv[] )
     {
         return EXIT_FAILURE ;
     }
+    std::string outputFieldSuffix ;
+    if( targetInFields )
+    {
+      outputFieldSuffix = "_to_" + vtksys::SystemTools::GetFilenameWithoutExtension( vtkFile2 ) ;
+    }
     vtkSmartPointer< vtkPolyData > outPolyData ;
     if( distanceType == "corresponding_point_to_point" )
     {
-        if( CorrespondingPointsDistance( inPolyData1 , inPolyData2 ) )
+        if( CorrespondingPointsDistance( inPolyData1 , inPolyData2 , outputFieldSuffix ) )
         {
             return EXIT_FAILURE ;
         }
@@ -326,7 +340,7 @@ int main( int argc , char* argv[] )
         {
             signedDistance = true ;
         }
-        if( ClosestPointDistance( inPolyData1 , inPolyData2 , signedDistance , outPolyData ) )
+        if( ClosestPointDistance( inPolyData1 , inPolyData2 , signedDistance , outPolyData , outputFieldSuffix ) )
         {
             return EXIT_FAILURE ;
         }
