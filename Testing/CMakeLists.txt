@@ -32,7 +32,7 @@ endif()
 
 if( Build_ModelToModelDistance )
   ## Test 2 : ModelToModelDistance.cxx with no inputs
-  add_test(NAME ModelToModelDistanceHelp COMMAND $<TARGET_FILE:ModelToModelDistance> --help) # Should just display the Usage:
+  add_test(NAME ModelToModelDistanceHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:ModelToModelDistance> --help) # Should just display the Usage:
   if( NOT VTK_DEBUG_LEAKS )
     add_executable(ModelToModelDistanceTest vtkTest.cxx)
     target_link_libraries(ModelToModelDistanceTest ModelToModelDistanceLib ${ITK_LIBRARIES} )
@@ -42,7 +42,7 @@ if( Build_ModelToModelDistance )
     set(OutputVTK ${TestingBinarydirectory}/sphere_distance_output.vtk)
     set(InputVTK DATA{Data/Input/sphere.vtk} )
 
-    ExternalData_Add_Test( ModelToModelDistanceData NAME ModelToModelDistanceTest COMMAND $<TARGET_FILE:ModelToModelDistanceTest>
+    ExternalData_Add_Test( ModelToModelDistanceData NAME ModelToModelDistanceTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:ModelToModelDistanceTest>
       --compare
         ${ReferenceVTK}
         ${OutputVTK}
@@ -54,7 +54,7 @@ if( Build_ModelToModelDistance )
     ## Test 4 : ModelToModelDistance.cxx with inputs
     set(ReferenceVTK DATA{Data/Baseline/results.vtk} )
     set(OutputVTK ${TestingBinarydirectory}/distanceModel1Model2.vtk )
-    ExternalData_Add_Test( ModelToModelDistanceData NAME ModelToModelDistancePointToPointTest COMMAND $<TARGET_FILE:ModelToModelDistanceTest>
+    ExternalData_Add_Test( ModelToModelDistanceData NAME ModelToModelDistancePointToPointTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:ModelToModelDistanceTest>
       --compare
         ${ReferenceVTK}
         ${OutputVTK}
