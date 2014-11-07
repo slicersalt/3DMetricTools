@@ -47,8 +47,8 @@ if( Build_ModelToModelDistance )
         ${ReferenceVTK}
         ${OutputVTK}
       ModuleEntryPoint
-        -i ${InputVTK}
-        -j ${InputVTK}
+        -s ${InputVTK}
+        -t ${InputVTK}
         -o ${OutputVTK}
      )
     ## Test 4 : ModelToModelDistance.cxx with inputs
@@ -59,8 +59,8 @@ if( Build_ModelToModelDistance )
         ${ReferenceVTK}
         ${OutputVTK}
       ModuleEntryPoint
-        -i ${Input1VTK}
-        -j ${Input1VTK}
+        -s ${Input1VTK}
+        -t ${Input1VTK}
         -o ${OutputVTK}
         --distanceType corresponding_point_to_point
      )
