@@ -111,6 +111,8 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     if( nbPoints1 != nbPoints2 )
     {
         std::cerr << "Both input files must have the same number of points to use \'corresponding_point_to_point\'" << std::endl ;
+        std::cerr << "Source model has " << nbPoints1 << " points" << std::endl ;
+        std::cerr << "Target model has " << nbPoints2 << " points" << std::endl ;
         return 1 ;
     }
     //Compute normals on inPolyData1
