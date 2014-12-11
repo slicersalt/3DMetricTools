@@ -12,7 +12,9 @@ Its main feature is to compute and display surface-to-surface distance between t
 
 ##License
 
-See License.txt
+3DMeshMetric is distributed under the GPLv3 license. See License-GPLv3.txt
+
+ModelToModelDistance is distributed under the Apache 2 license. See License-Apache2.txt
 
 ##More information
 
