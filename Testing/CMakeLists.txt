@@ -36,6 +36,9 @@ if( Build_ModelToModelDistance )
   if( NOT VTK_DEBUG_LEAKS )
     add_executable(ModelToModelDistanceTest vtkTest.cxx)
     target_link_libraries(ModelToModelDistanceTest ModelToModelDistanceLib ${ITK_LIBRARIES} )
+    if( NOT Build_Static )
+      set_target_properties(ModelToModelDistanceTest PROPERTIES COMPILE_FLAGS "-DBUILD_SHARED_LIBS") # definition of the variable for c++ preprocessor
+    endif()
 
     ## Test 3 : ModelToModelDistance.cxx with inputs
     set(ReferenceVTK DATA{Data/Baseline/sphere_distance.vtk} )
