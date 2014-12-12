@@ -38,6 +38,7 @@ set(EXTENSION_BUILD_SUBDIRECTORY .)
 if( ${EXTENSION_NAME}_BUILD_SLICER_EXTENSION )
   set( ${LOCAL_PROJECT_NAME}_SUPERBUILD OFF CACHE BOOL 
         "Build ${LOCAL_PROJECT_NAME} and the projects it depends on via SuperBuild.cmake." FORCE )
+  set( Build_Static OFF CACHE BOOL "Static libraries and executables only" FORCE )
 endif()
 
 #-----------------------------------------------------------------------------
