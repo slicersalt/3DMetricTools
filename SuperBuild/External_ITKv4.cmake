@@ -109,8 +109,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DBUILD_TESTING:BOOL=OFF
       -DBUILD_EXAMPLES:BOOL=OFF
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
-      -DITK_LEGACY_REMOVE:BOOL=OFF
-      -DITK_FUTURE_LEGACY_REMOVE:=BOOL=OFF
+      -DITK_LEGACY_REMOVE:BOOL=ON
       -DITKV3_COMPATIBILITY:BOOL=OFF
       -DITK_USE_REVIEW:BOOL=OFF
       -DModule_ITKReview:BOOL=OFF
@@ -125,23 +124,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DITK_USE_SYSTEM_JPEG:BOOL=OFF
       -DITK_USE_SYSTEM_ZLIB:BOOL=OFF
 
-      -DITK_BUILD_ALL_MODULES:BOOL=OFF
-      -DITKGroup_Remote:BOOL=OFF
-      -DITKGroup_Video:BOOL=OFF
-      -DITKGroup_Segmentation:BOOL=OFF
-      -DITKGroup_Registration:BOOL=OFF
-      -DITKGroup_Numerics:BOOL=OFF
-      -DITKGroup_Nonunit:BOOL=OFF
-      -DITKGroup_IO:BOOL=OFF
-      -DITKGroup_Filtering:BOOL=OFF
-      -DITKGroup_Compatibility:BOOL=OFF
-      -DITKGroup_Bridge:BOOL=OFF
-      -DITKGroup_ThirdParty:BOOL=OFF
-      -DITKGroup_Core:BOOL=OFF
-
-      -DModule_ITKCommon:BOOL=ON
-      -DModule_ITKKWSys:BOOL=ON
-      -DModule_ITKExpat:BOOL=ON
+      -DITK_BUILD_DEFAULT_MODULES:BOOL=ON
 
       ${${proj}_DCMTK_ARGS}
       ${${proj}_WRAP_ARGS}
@@ -150,8 +133,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
     )
   ### --- End Project specific additions
   set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git)
-  set(${proj}_GIT_TAG c3624fafeb15f042839a8e6c463970e75ad40777)
-  set(ITK_VERSION_ID ITK-4.5)
+  set(${proj}_GIT_TAG 20c05927f51d88b25429c6bd270e19c4b365b7e4)
+  set(ITK_VERSION_ID ITK-4.7)
 
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
