@@ -744,7 +744,7 @@ int read_model(struct model **models_ref, struct file_data *data,
 
 /* see model_in.h */
 int read_fmodel(struct model **models_ref, const char *fname,
-                int fformat, int concat)
+                int fformat, int )
 {
   int rcode;
   struct file_data *data;

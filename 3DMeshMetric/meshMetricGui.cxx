@@ -26,7 +26,7 @@
 
 #include "meshMetricGui.h"
 
-meshMetricGui::meshMetricGui( QWidget *Parent , Qt::WFlags f , QString path )
+meshMetricGui::meshMetricGui( QWidget *, Qt::WFlags , QString path )
 {
     setupUi(this);
 
@@ -683,6 +683,7 @@ int meshMetricGui::OpenBrowseWindowFile()
 
       return 0;
     }
+  return 0;
 }
 
 

@@ -208,7 +208,7 @@ int processing::CheckPreviousError( dataM &Data1 )
     else // some arrays
     {
         const char* Names ;
-		const char* NameDistance ;
+        const char* NameDistance = 0;
         for( int i = 0; i < NumberOfArrays ; i++ )
         {
             Names = PolyData -> GetPointData() -> GetArrayName( i );
@@ -217,7 +217,7 @@ int processing::CheckPreviousError( dataM &Data1 )
             {
                 Check = Check + 1;
                 Indice = i;
-				NameDistance = Names ;
+                NameDistance = Names ;
             }
             if( strcmp( Names , "Original" ) == 0 )
             {

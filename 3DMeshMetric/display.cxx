@@ -225,7 +225,7 @@ void display::updatePositionCamera()
 }
 
 //*************************************************************************************************
-void display::KeypressCallbackFunction( vtkObject* caller, unsigned long notUseduLong, void* notUsedVoid )
+void display::KeypressCallbackFunction( vtkObject* caller, unsigned long , void* )
 {
   vtkRenderWindowInteractor *iren = static_cast< vtkRenderWindowInteractor* >(caller);
   if( strcmp( iren->GetKeySym() , "v" ) == 0 )
