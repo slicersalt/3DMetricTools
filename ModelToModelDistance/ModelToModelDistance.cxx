@@ -1,6 +1,6 @@
 // My library
 #include "ModelToModelDistanceCLP.h"
-#include <vtkDistancePolyDataFilter.h>
+#include <vtkDistancePolyDataFilter_m.h>
 #include <vtkVersion.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkXMLPolyDataWriter.h>
@@ -129,23 +129,41 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     vtkSmartPointer <vtkDoubleArray> distanceArray = vtkSmartPointer <vtkDoubleArray>::New();
     std::string fieldName = "AbsolutePointToPointDistance" + outputFieldSuffix ;
     distanceArray->SetName( fieldName.c_str() ) ;
+    ////////////
     vtkSmartPointer <vtkDoubleArray> distanceVecArray = vtkSmartPointer <vtkDoubleArray>::New();
     distanceVecArray->SetNumberOfComponents( 3 ) ;
     fieldName = "PointToPointVector" + outputFieldSuffix ;
     distanceVecArray->SetName( fieldName.c_str() ) ;
+    ////////////
     vtkSmartPointer <vtkDoubleArray> signedDistanceArray = vtkSmartPointer <vtkDoubleArray>::New();
     fieldName = "SignedPointToPointDistance" + outputFieldSuffix ;
     signedDistanceArray->SetName( fieldName.c_str()) ;
+    ////////////
     vtkSmartPointer <vtkDoubleArray> signedMagNormDirArray = vtkSmartPointer <vtkDoubleArray>::New();
     fieldName = "SignedMagNormDirDistance" + outputFieldSuffix ;
     signedMagNormDirArray->SetName( fieldName.c_str() ) ;
+    ////////////
     vtkSmartPointer <vtkDoubleArray> magNormDirArray = vtkSmartPointer <vtkDoubleArray>::New();
     fieldName = "AbsoluteMagNormDirDistance" + outputFieldSuffix ;
     magNormDirArray->SetName( fieldName.c_str() ) ;
+    ////////////
     vtkSmartPointer <vtkDoubleArray> magNormDirVecArray = vtkSmartPointer <vtkDoubleArray>::New();
     magNormDirVecArray->SetNumberOfComponents( 3 ) ;
     fieldName = "MagNormVector" + outputFieldSuffix ;
     magNormDirVecArray->SetName( fieldName.c_str() ) ;
+    ////////////
+    vtkSmartPointer <vtkDoubleArray> PointToPointAlongXArray = vtkSmartPointer <vtkDoubleArray>::New();
+    fieldName = "PointToPointAlongX" + outputFieldSuffix ;
+    PointToPointAlongXArray->SetName( fieldName.c_str() ) ;
+    ////////////
+    vtkSmartPointer <vtkDoubleArray> PointToPointAlongYArray = vtkSmartPointer <vtkDoubleArray>::New();
+    fieldName = "PointToPointAlongY" + outputFieldSuffix ;
+    PointToPointAlongYArray->SetName( fieldName.c_str() ) ;
+    ////////////
+    vtkSmartPointer <vtkDoubleArray> PointToPointAlongZArray = vtkSmartPointer <vtkDoubleArray>::New();
+    fieldName = "PointToPointAlongZ" + outputFieldSuffix ;
+    PointToPointAlongZArray->SetName( fieldName.c_str() ) ;
+    ////////////
     double absoluteDistance ;
     double* p1 ;
     double* p2 ;
@@ -172,6 +190,9 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
             normal[ j ] *= dotProduct ;
         }
         magNormDirVecArray->InsertTuple3( i , normal[ 0 ] , normal[ 1 ] , normal[ 2 ] ) ;
+        PointToPointAlongXArray->InsertTuple1(i , vec[ 0 ] );
+        PointToPointAlongYArray->InsertTuple1(i , vec[ 1 ] );
+        PointToPointAlongZArray->InsertTuple1(i , vec[ 2 ] );
     }
     inPolyData1->GetPointData()->AddArray( distanceArray ) ;
     inPolyData1->GetPointData()->AddArray( magNormDirVecArray ) ;
@@ -179,6 +200,9 @@ int CorrespondingPointsDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
     inPolyData1->GetPointData()->AddArray( signedDistanceArray ) ;
     inPolyData1->GetPointData()->AddArray( signedMagNormDirArray ) ;
     inPolyData1->GetPointData()->AddArray( magNormDirArray ) ;
+    inPolyData1->GetPointData()->AddArray( PointToPointAlongXArray ) ;
+    inPolyData1->GetPointData()->AddArray( PointToPointAlongYArray ) ;
+    inPolyData1->GetPointData()->AddArray( PointToPointAlongZArray ) ;
     return 0 ;
 }
 
@@ -189,8 +213,8 @@ int ClosestPointDistance( vtkSmartPointer< vtkPolyData > &inPolyData1 ,
                           std::string outputFieldSuffix
                           )
 {
-    vtkSmartPointer<vtkDistancePolyDataFilter> distanceFilter =
-            vtkSmartPointer<vtkDistancePolyDataFilter>::New();
+    vtkSmartPointer<vtkDistancePolyDataFilter_m> distanceFilter =
+            vtkSmartPointer<vtkDistancePolyDataFilter_m>::New();
     distanceFilter->SetInputData( 0, inPolyData1 ) ;
     distanceFilter->SetInputData( 1, inPolyData2 ) ;
     distanceFilter->SetSignedDistance( signedDistance ) ;
