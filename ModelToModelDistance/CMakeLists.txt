@@ -4,6 +4,8 @@ PROJECT( ModelToModelDistance )
 SEMMacroBuildCLI(
     NAME ModelToModelDistance
     ${STATIC}
+    ADDITIONAL_SRCS vtkImplicitPolyDataDistance_m.cxx vtkImplicitPolyDataDistance_m.h vtkDistancePolyDataFilter_m.h vtkDistancePolyDataFilter_m.cxx
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
     TARGET_LIBRARIES ${VTK_LIBRARIES}
     INSTALL_RUNTIME_DESTINATION ${INSTALL_RUNTIME_DESTINATION}
     INSTALL_LIBRARY_DESTINATION ${INSTALL_LIBRARY_DESTINATION}

@@ -5,7 +5,7 @@
   <description>
    This module computes distance point by point between 2 meshes
   </description>
-  <version>1.1</version>
+  <version>1.2</version>
   <documentation-url></documentation-url>
   <license></license>
   <contributor>Francois Budin, Juliette Pera</contributor>
@@ -27,7 +27,7 @@ This work was funded by National Institute of Dental and Craniofacial Research (
       <name>vtkFile2</name>
       <label>Target Model</label>
       <channel>input</channel>
-      <longflag>--targe</longflag>
+      <longflag>--target</longflag>
       <flag>-t</flag>
       <description><![CDATA[Target Model (*.vtk or *.vtp)]]></description>
     </geometry>
