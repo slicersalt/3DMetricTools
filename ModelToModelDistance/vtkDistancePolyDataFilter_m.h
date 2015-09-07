@@ -38,7 +38,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkDistancePolyDataFilter_m : public vtkPolyDataAlgorithm
+class vtkDistancePolyDataFilter_m : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDistancePolyDataFilter_m *New();

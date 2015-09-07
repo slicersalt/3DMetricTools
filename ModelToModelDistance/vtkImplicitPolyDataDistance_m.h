@@ -43,7 +43,7 @@
 class vtkCellLocator;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkImplicitPolyDataDistance_m : public vtkImplicitFunction
+class vtkImplicitPolyDataDistance_m : public vtkImplicitFunction
 {
 public:
   static vtkImplicitPolyDataDistance_m *New();
