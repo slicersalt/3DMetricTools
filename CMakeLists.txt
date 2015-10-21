@@ -9,7 +9,7 @@ set(EXTENSION_CATEGORY "Shape Analysis")
 set(EXTENSION_CONTRIBUTORS "Francois Budin (UNC), Juliette Pera (UNC), Beatriz Paniagua (UNC)")
 set(EXTENSION_DESCRIPTION "This extension computes the distance between two 3D models")
 set(EXTENSION_ICONURL "http://slicer.org/slicerWiki/images/4/43/Slicer4ExtensionModelToModelDistance.png")
-set(EXTENSION_SCREENSHOTURLS "")
+set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/thumb/7/7a/Slicer4Extensions-ModelToModelDistanceOriginalShapes.png/800px-Slicer4Extensions-ModelToModelDistanceOriginalShapes.png")
 set(EXTENSION_STATUS "")
 set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
 set(EXTENSION_BUILD_SUBDIRECTORY .)
