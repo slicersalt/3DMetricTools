@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Shape Analysis</category>
+  <category>Quantification</category>
   <title>Model To Model Distance</title>
   <description>
    This module computes distance point by point between 2 meshes
