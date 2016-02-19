@@ -5,7 +5,7 @@ set( LOCAL_PROJECT_NAME 3DMetricTools )
 
 set(EXTENSION_NAME ModelToModelDistance)
 set(EXTENSION_HOMEPAGE "https://www.nitrc.org/projects/meshmetric3d/")
-set(EXTENSION_CATEGORY "Shape Analysis")
+set(EXTENSION_CATEGORY "Quantification")
 set(EXTENSION_CONTRIBUTORS "Francois Budin (UNC), Juliette Pera (UNC), Beatriz Paniagua (UNC)")
 set(EXTENSION_DESCRIPTION "This extension computes the distance between two 3D models")
 set(EXTENSION_ICONURL "http://slicer.org/slicerWiki/images/4/43/Slicer4ExtensionModelToModelDistance.png")
