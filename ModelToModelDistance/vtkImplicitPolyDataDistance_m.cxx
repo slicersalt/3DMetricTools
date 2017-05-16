@@ -76,7 +76,7 @@ void vtkImplicitPolyDataDistance_m::SetInput(vtkPolyData* input)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkImplicitPolyDataDistance_m::GetMTime()
+vtkMTimeType vtkImplicitPolyDataDistance_m::GetMTime()
 {
   unsigned long mTime=this->vtkImplicitFunction::GetMTime();
   unsigned long InputMTime;
