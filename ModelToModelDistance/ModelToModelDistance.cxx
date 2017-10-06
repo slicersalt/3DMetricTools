@@ -254,7 +254,7 @@ int ReadVTK( std::string input , vtkSmartPointer<vtkPolyData> &polyData )
             vtkSmartPointer<ErrorObserver>::New();
     if( input.rfind( ".vtk" ) != std::string::npos )
     {
-        vtkSmartPointer< vtkPolyDataReader > polyReader = vtkPolyDataReader::New() ;
+      vtkSmartPointer< vtkPolyDataReader > polyReader = vtkSmartPointer<vtkPolyDataReader>::New();
         polyReader->AddObserver( vtkCommand::ErrorEvent , errorObserver ) ;
         polyReader->SetFileName( input.c_str() ) ;
         polyData = polyReader->GetOutput() ;
@@ -262,7 +262,7 @@ int ReadVTK( std::string input , vtkSmartPointer<vtkPolyData> &polyData )
     }
     else if( input.rfind( ".vtp" ) != std::string::npos )
     {
-        vtkSmartPointer< vtkXMLPolyDataReader > xmlReader = vtkXMLPolyDataReader::New() ;
+      vtkSmartPointer< vtkXMLPolyDataReader > xmlReader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
         xmlReader->SetFileName( input.c_str() ) ;
         xmlReader->AddObserver( vtkCommand::ErrorEvent , errorObserver ) ;
         polyData = xmlReader->GetOutput() ;
@@ -287,7 +287,7 @@ int WriteVTK( std::string output , vtkSmartPointer<vtkPolyData> &polyData )
             vtkSmartPointer<ErrorObserver>::New();
     if (output.rfind(".vtk") != std::string::npos )
     {
-        vtkSmartPointer<vtkPolyDataWriter> writer = vtkPolyDataWriter::New() ;
+        vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New() ;
         writer->SetFileName( output.c_str() ) ;
         writer->AddObserver( vtkCommand::ErrorEvent , errorObserver ) ;
         writer->SetInputData( polyData ) ;
@@ -295,7 +295,7 @@ int WriteVTK( std::string output , vtkSmartPointer<vtkPolyData> &polyData )
     }
     else if( output.rfind( ".vtp" ) != std::string::npos )
     {
-        vtkSmartPointer< vtkXMLPolyDataWriter > writer = vtkXMLPolyDataWriter::New() ;
+      vtkSmartPointer< vtkXMLPolyDataWriter > writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
         writer->SetFileName( output.c_str() ) ;
         writer->AddObserver( vtkCommand::ErrorEvent , errorObserver ) ;
         writer->SetInputData( polyData ) ;
