@@ -9,7 +9,6 @@ endif()
  
 #-----------------------------------------------------------------------------
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 set(${LOCAL_PROJECT_NAME}_USE_QT TRUE)
 #-----------------------------------------------------------------------------
 # Git protocole option

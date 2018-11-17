@@ -31,6 +31,8 @@ set(EXTENSION_BUILD_SUBDIRECTORY .)
 #                             packages built in Phase I.
 #-----------------------------------------------------------------------------
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake) #<-- All feature options for top superbuild and inner product build
+
 #-----------------------------------------------------------------------------
 # 3DSlicer Extension
 #-----------------------------------------------------------------------------
