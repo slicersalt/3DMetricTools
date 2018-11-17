@@ -3,7 +3,6 @@ project( 3DMetricTools )
 unset( USE_SYSTEM_ITK CACHE )
 unset( USE_SYSTEM_SlicerExecutionModel CACHE )
 unset( USE_SYSTEM_VTK CACHE )
-unset( USE_GIT_PROTOCOL_3DMetricTools_SUPERBUILD CACHE )
 
 ## A simple macro to set variables ONLY if it has not been set
 ## This is needed when stand-alone packages are combined into
