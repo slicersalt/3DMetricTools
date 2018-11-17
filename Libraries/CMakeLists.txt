@@ -13,7 +13,13 @@ MeshValmet/xalloc.cxx
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-add_library(MeshValmetLib ${STATIC_LIB} ${MeshValmetLib_SRC} )
+if( Build_Static )
+  set( MeshValmetLib_LIBRARY_TYPE STATIC )
+else()
+  set( MeshValmetLib_LIBRARY_TYPE SHARED )
+endif()
+
+add_library(MeshValmetLib ${MeshValmetLib_LIBRARY_TYPE} ${MeshValmetLib_SRC} )
 
 target_link_libraries(MeshValmetLib ${VTK_LIBRARIES} )
 #message( ${vtkGUISupportQt_LIBRARIES} )

@@ -6,6 +6,15 @@ enable_language(CXX)
 # Build option(s)
 #-----------------------------------------------------------------------------
 
+option( Build_ModelToModelDistance "CLI (licensed under Apache 2.0)" ON )
+
+set(_default ON)
+if(${EXTENSION_NAME}_BUILD_SLICER_EXTENSION)
+  set(_default OFF)
+endif()
+option( Build_3DMeshMetric "Qt GUI (licensed under GPLv3)" ${_default} )
+
+
 set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
 
 option(INSTALL_DEVELOPMENT_${LOCAL_PROJECT_NAME} "Install development support include and libraries for external packages." OFF)

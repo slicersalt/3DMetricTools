@@ -28,7 +28,7 @@ if( ${EXTENSION_NAME}_BUILD_SLICER_EXTENSION )
   find_package(Git REQUIRED )
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
-  set( Build_3DMeshMetric OFF CACHE BOOL "Qt GUI" FORCE )
+
   set( INSTALL_RUNTIME_DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
   set( INSTALL_LIBRARY_DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION} )
 else()
@@ -52,33 +52,24 @@ else()
   SETIFEMPTY( INSTALL_LIBRARY_DESTINATION ${INSTALL_RUNTIME_DESTINATION}/lib )
 endif()
 
-if( Build_Static )
-  set( STATIC "EXECUTABLE_ONLY" )
-  set( STATIC_LIB STATIC )
-  set( MeshValmetLib_BINARY_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} )
-else()
-  set( STATIC_LIB SHARED )
-  set( MeshValmetLib_BINARY_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
-endif()
-
-# meshvalmet libraries
-if( Build_3DMeshMetric )
-  # find the QT4 headers
-  find_package( Qt4 REQUIRED )
-  include( ${QT_USE_FILE} )
-  set( MeshValmetLib_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Libraries )
-  add_subdirectory( Libraries )
-endif()
-
-option( Build_ModelToModelDistance "CLI" ON )
-option( Build_3DMeshMetric "Qt GUI" ON )
-# build errorMetric
 if( Build_ModelToModelDistance )
   add_subdirectory( ModelToModelDistance )
 endif()
 
-# build meshMetric
 if( Build_3DMeshMetric )
+  find_package( Qt4 REQUIRED )
+  include( ${QT_USE_FILE} )
+
+  set( MeshValmetLib_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Libraries )
+  if( Build_Static )
+    set( MeshValmetLib_LIBRARY_TYPE STATIC )
+    set( MeshValmetLib_BINARY_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} )
+  else()
+    set( MeshValmetLib_LIBRARY_TYPE SHARED )
+    set( MeshValmetLib_BINARY_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
+  endif()
+
+  add_subdirectory( Libraries )
   add_subdirectory( 3DMeshMetric )
 endif()
 
