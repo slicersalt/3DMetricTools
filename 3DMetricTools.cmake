@@ -71,8 +71,6 @@ else()
   SETIFEMPTY( INSTALL_LIBRARY_DESTINATION ${INSTALL_RUNTIME_DESTINATION}/lib )
 endif()
 
-
-option( Build_Static "Static libraries and executables only" ON )
 if( Build_Static )
   set( STATIC "EXECUTABLE_ONLY" )
   set( STATIC_LIB STATIC )

@@ -25,6 +25,12 @@ if(${ITK_VERSION_MAJOR} STREQUAL "3")
   set(USE_ITKv4 OFF)
 endif()
 
+set(_default ON)
+if( ${EXTENSION_NAME}_BUILD_SLICER_EXTENSION )
+  set(_default OFF)
+endif()
+option( Build_Static "Static libraries and executables only" ${_default} )
+
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 

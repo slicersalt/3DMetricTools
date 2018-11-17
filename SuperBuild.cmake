@@ -204,7 +204,7 @@ ExternalProject_Add(${proj}
     ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
     ${COMMON_EXTERNAL_PROJECT_ARGS}
     -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
-    -DBuild_Static:BOOL=ON
+    -DBuild_Static:BOOL=${Build_Static}
     -DBuild_ModelToModelDistance:BOOL=ON
     -DBuild_3DMeshMetric:BOOL=ON
   INSTALL_COMMAND ""
