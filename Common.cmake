@@ -14,6 +14,10 @@ if(${EXTENSION_NAME}_BUILD_SLICER_EXTENSION)
 endif()
 option( Build_3DMeshMetric "Qt GUI (licensed under GPLv3)" ${_default} )
 
+if(NOT DEFINED 3DMetricTools_BUILD_TESTING)
+  option(BUILD_TESTING "tests" ON)
+  set(3DMetricTools_BUILD_TESTING ${BUILD_TESTING})
+endif()
 
 set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
 
