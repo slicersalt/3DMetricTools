@@ -58,6 +58,8 @@ public:
   // Evaluate plane equation of nearest triangle to point x[3].
   double EvaluateFunction(double x[3], double *p_save );
   double EvaluateFunction(double x[3]);
+  using vtkImplicitFunction::EvaluateFunction;
+
   // Description:
   // Evaluate function gradient of nearest triangle to point x[3].
   void EvaluateGradient(double x[3], double g[3]);
