@@ -1,56 +1,76 @@
 
-unset( USE_SYSTEM_ITK CACHE )
-unset( USE_SYSTEM_SlicerExecutionModel CACHE )
-unset( USE_SYSTEM_VTK CACHE )
+# Extension meta-information
+set(EXTENSION_HOMEPAGE "https://www.nitrc.org/projects/meshmetric3d/")
+set(EXTENSION_CATEGORY "Quantification")
+set(EXTENSION_CONTRIBUTORS "Francois Budin (UNC), Juliette Pera (UNC), Beatriz Paniagua (UNC)")
+set(EXTENSION_DESCRIPTION "This extension computes the distance between two 3D models")
+set(EXTENSION_ICONURL "http://slicer.org/slicerWiki/images/4/43/Slicer4ExtensionModelToModelDistance.png")
+set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/thumb/7/7a/Slicer4Extensions-ModelToModelDistanceOriginalShapes.png/800px-Slicer4Extensions-ModelToModelDistanceOriginalShapes.png")
+set(EXTENSION_STATUS "")
+set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
+set(EXTENSION_BUILD_SUBDIRECTORY .)
 
-## A simple macro to set variables ONLY if it has not been set
-## This is needed when stand-alone packages are combined into
-## a larger package, and the desired behavior is that all the
-## binary results end up in the combined directory.
-if(NOT SETIFEMPTY)
-macro(SETIFEMPTY)
-  set(KEY ${ARGV0})
-  set(VALUE ${ARGV1})
-  if(NOT ${KEY})
-    set(${KEY} ${VALUE})
-  endif(NOT ${KEY})
-endmacro(SETIFEMPTY KEY VALUE)
-endif(NOT SETIFEMPTY)
+#-----------------------------------------------------------------------------
+# Prequisites
+#-----------------------------------------------------------------------------
+find_package(SlicerExecutionModel REQUIRED)
+include(${SlicerExecutionModel_USE_FILE})
 
-SETIFEMPTY( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-SETIFEMPTY( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib )
-SETIFEMPTY( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib/static )
-SETIFEMPTY( INSTALL_ARCHIVE_DESTINATION 3DMetricTools-static_lib )
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
 
-if( ${EXTENSION_NAME}_BUILD_SLICER_EXTENSION )
-  find_package(Subversion REQUIRED )
-  find_package(Git REQUIRED )
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-
-  set( INSTALL_RUNTIME_DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
-  set( INSTALL_LIBRARY_DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION} )
+if(3DMetricTools_QT_VERSION VERSION_EQUAL "4")
+  find_package(Qt4 REQUIRED)
+  include(${QT_USE_FILE})
+  set(3DMetricTools_VTK_USE_QVTKOPENGLWIDGET 0)
+  set(3DMetricTools_VTK_USE_QVTKOPENGLNATIVEWIDGET 0)
 else()
-  # find the VTK headers
-  find_package( VTK REQUIRED )
-  if( ${VTK_MAJOR_VERSION} VERSION_LESS 6 )
-    message( FATAL_ERROR "VTK version 6 or higher needed" )
+  set(qt_components Core Widgets)
+  if(UNIX AND NOT APPLE)
+    list(APPEND qt_components X11Extras)
   endif()
-  include( ${VTK_USE_FILE} )
-  # find the SlicerExecutionModel headers
-  find_package(SlicerExecutionModel REQUIRED GenerateCLP)
-  include( ${SlicerExecutionModel_USE_FILE} )
-  include(${GenerateCLP_USE_FILE})
+  find_package(Qt5 COMPONENTS ${qt_components} REQUIRED)
+  if (VTK_VERSION VERSION_GREATER "7" AND VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    set(3DMetricTools_VTK_USE_QVTKOPENGLWIDGET 1)
+    set(3DMetricTools_VTK_USE_QVTKOPENGLNATIVEWIDGET 0)
+
+    # Detect if QVTKOpenGLNativeWidget.h is available (adapted from https://github.com/commontk/CTK)
+    if(3DMetricTools_VTK_USE_QVTKOPENGLWIDGET)
+      set(_msg "Checking if QVTKOpenGLNativeWidget.h exists")
+      message(STATUS "${_msg}")
+      foreach(include_dir IN ITEMS ${vtkGUISupportQt_INCLUDE_DIRS})
+        if(EXISTS "${include_dir}/QVTKOpenGLNativeWidget.h")
+          set(3DMetricTools_VTK_USE_QVTKOPENGLNATIVEWIDGET 1)
+          break()
+        endif()
+      endforeach()
+      if(3DMetricTools_VTK_USE_QVTKOPENGLNATIVEWIDGET)
+        message(STATUS "${_msg} - found")
+      else()
+        message(STATUS "${_msg} - not found")
+      endif()
+    endif()
+  endif()
+  set(QT_LIBRARIES)
+  foreach(lib IN LISTS qt_components)
+    list(APPEND QT_LIBRARIES Qt5::${lib})
+  endforeach()
+endif()
+
+#-----------------------------------------------------------------------------
+if( NOT ${EXTENSION_NAME}_BUILD_SLICER_EXTENSION )
   # set RPATH
   if( UNIX )
     if(NOT APPLE)
       SET( CMAKE_INSTALL_RPATH "$ORIGIN/lib" )
     endif()
   endif()
+  SETIFEMPTY( INSTALL_ARCHIVE_DESTINATION 3DMetricTools-static_lib )
   SETIFEMPTY( INSTALL_RUNTIME_DESTINATION 3DMetricTools-package )
   SETIFEMPTY( INSTALL_LIBRARY_DESTINATION ${INSTALL_RUNTIME_DESTINATION}/lib )
 endif()
 
+#-----------------------------------------------------------------------------
 if( Build_ModelToModelDistance )
   add_subdirectory( ModelToModelDistance )
 endif()
@@ -72,12 +92,18 @@ if( Build_3DMeshMetric )
   add_subdirectory( 3DMeshMetric )
 endif()
 
+#-----------------------------------------------------------------------------
+# Testing
+#-----------------------------------------------------------------------------
 if(3DMetricTools_BUILD_TESTING)
   include(CTest)
   include(ExternalData)
   ADD_SUBDIRECTORY(Testing)
 endif()
 
+#-----------------------------------------------------------------------------
+# Packaging
+#-----------------------------------------------------------------------------
 if( ${EXTENSION_NAME}_BUILD_SLICER_EXTENSION )
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})

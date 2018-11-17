@@ -1,14 +1,29 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(EXTENSION_HOMEPAGE "https://www.nitrc.org/projects/meshmetric3d/")
-set(EXTENSION_CATEGORY "Quantification")
-set(EXTENSION_CONTRIBUTORS "Francois Budin (UNC), Juliette Pera (UNC), Beatriz Paniagua (UNC)")
-set(EXTENSION_DESCRIPTION "This extension computes the distance between two 3D models")
-set(EXTENSION_ICONURL "http://slicer.org/slicerWiki/images/4/43/Slicer4ExtensionModelToModelDistance.png")
-set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/thumb/7/7a/Slicer4Extensions-ModelToModelDistanceOriginalShapes.png/800px-Slicer4Extensions-ModelToModelDistanceOriginalShapes.png")
-set(EXTENSION_STATUS "")
-set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
-set(EXTENSION_BUILD_SUBDIRECTORY .)
+# C++ standard
+set(_msg "Setting C++ standard")
+message(STATUS "${_msg}")
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  if("${3DMetricTools_VTK_VERSION_MAJOR}" STREQUAL "8" OR DEFINED Qt5_DIR OR DEFINED Slicer_DIR)
+    set(CMAKE_CXX_STANDARD 11)
+  else()
+    set(CMAKE_CXX_STANDARD 98)
+  endif()
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+message(STATUS "${_msg} - C++${CMAKE_CXX_STANDARD}")
+
+# Update CMake module path
+set(3DMetricTools_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+list(INSERT CMAKE_MODULE_PATH 0 ${3DMetricTools_CMAKE_DIR})
+
+# Superbuild
+set(SUPERBUILD_TOPLEVEL_PROJECT 3DMetricTools)
+set(EXTERNAL_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild)
+set(EXTERNAL_PROJECT_FILE_PREFIX "External_")
+include(ExternalProject)
+include(ExternalProjectDependency)
 
 project(3DMetricTools)
 set(LOCAL_PROJECT_NAME 3DMetricTools)
@@ -40,6 +55,46 @@ if(${EXTENSION_NAME}_BUILD_SLICER_EXTENSION)
   message(STATUS "${_msg} - yes (${_reason})")
 else()
   message(STATUS "${_msg} - no (${EXTENSION_NAME}_BUILD_SLICER_EXTENSION is OFF)")
+endif()
+mark_as_superbuild(${EXTENSION_NAME}_BUILD_SLICER_EXTENSION:BOOL)
+
+#-----------------------------------------------------------------------------
+# Slicer
+#-----------------------------------------------------------------------------
+if(${EXTENSION_NAME}_BUILD_SLICER_EXTENSION)
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+endif()
+
+#-----------------------------------------------------------------------------
+# Qt
+#
+# If building as a Slicer extension, use Slicer's Qt Version
+# If QT_QMAKE_EXECUTABLE is defined, default to Qt4
+# If Qt5_DIR is defined, default to Qt5
+# Otherwise, default to Qt4
+#-----------------------------------------------------------------------------
+
+set(_qt_version "4")
+
+if (${EXTENSION_NAME}_BUILD_SLICER_EXTENSION)
+  if (Slicer_REQUIRED_QT_VERSION VERSION_GREATER "4.9")
+    set(_qt_version "5")
+  endif()
+elseif(DEFINED QT_QMAKE_EXECUTABLE)
+  set(_qt_version "4")
+elseif(DEFINED Qt5_DIR)
+  set(_qt_version "5")
+endif()
+
+set(3DMetricTools_QT_VERSION ${_qt_version} CACHE STRING "Version of Qt to use")
+set_property(CACHE 3DMetricTools_QT_VERSION PROPERTY STRINGS 4 5)
+
+# Select VTK major version based on Qt version
+if(3DMetricTools_QT_VERSION STREQUAL "4")
+  set(3DMetricTools_VTK_VERSION_MAJOR "7")
+else()
+  set(3DMetricTools_VTK_VERSION_MAJOR "8")
 endif()
 
 #-----------------------------------------------------------------------------
