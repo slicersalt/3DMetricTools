@@ -18,21 +18,6 @@ macro(SETIFEMPTY)
 endmacro(SETIFEMPTY KEY VALUE)
 endif(NOT SETIFEMPTY)
 
-# sub-directory of the executable
-## A simple macro to set variables ONLY if it has not been set
-## This is needed when stand-alone packages are combined into
-## a larger package, and the desired behavior is that all the
-## binary results end up in the combined directory.
-if(NOT SETIFEMPTY)
-macro(SETIFEMPTY)
-  set(KEY ${ARGV0})
-  set(VALUE ${ARGV1})
-  if(NOT ${KEY})
-    set(${KEY} ${VALUE})
-  endif(NOT ${KEY})
-endmacro(SETIFEMPTY KEY VALUE)
-endif(NOT SETIFEMPTY)
-
 SETIFEMPTY( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 SETIFEMPTY( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib )
 SETIFEMPTY( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib/static )
