@@ -1,6 +1,6 @@
-#3DMeshMetric
+# 3DMeshMetric
 
-##What is it?
+## What is it?
 
 3DMeshMetric is a visualization tool based on the VTK library.
 
@@ -10,13 +10,13 @@ Its main feature is to compute and display surface-to-surface distance between t
 
 3DMeshMetric also contains an additional tool called ModelToModelDistance that computes distances between two triangle meshes (using the VTK library). This tool can be used either as a command line tool or integrated in 3D Slicer (http://www.slicer.org) as a CLI module. It is available in 3D Slicer as an extension to facilitate the download and installation process.
 
-##License
+## License
 
 3DMeshMetric is distributed under the GPLv3 license. See License-GPLv3.txt
 
 ModelToModelDistance is distributed under the Apache 2 license. See License-Apache2.txt
 
-##More information
+## More information
 
 Find the tool on [NITRC](http://www.nitrc.org/projects/meshmetric3d)
 

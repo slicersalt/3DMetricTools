@@ -1,193 +1,142 @@
-if( NOT EXTERNAL_SOURCE_DIRECTORY )
-  set( EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/ExternalSources )
-endif()
 
-# Make sure this file is included only once by creating globally unique varibles
-# based on the name of this included file.
-get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
-if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
-  return()
-endif()
-set(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED 1)
-
-## External_${extProjName}.cmake files can be recurisvely included,
-## and cmake variables are global, so when including sub projects it
-## is important make the extProjName and proj variables
-## appear to stay constant in one of these files.
-## Store global variables before overwriting (then restore at end of this file.)
-ProjectDependancyPush(CACHED_extProjName ${extProjName})
-ProjectDependancyPush(CACHED_proj ${proj})
-
-# Make sure that the ExtProjName/IntProjName variables are unique globally
-# even if other External_${ExtProjName}.cmake files are sourced by
-# SlicerMacroCheckExternalProjectDependency
-set(extProjName VTK) #The find_package known name
-set(proj        VTK) #This local name
-set(${extProjName}_REQUIRED_VERSION "6")  #If a required version is necessary, then set this, else leave blank
-
-#if(${USE_SYSTEM_${extProjName}})
-#  unset(${extProjName}_DIR CACHE)
-#endif()
-
-# Sanity checks
-if(DEFINED ${extProjName}_DIR AND NOT EXISTS ${${extProjName}_DIR})
-  message(FATAL_ERROR "${extProjName}_DIR variable is defined but corresponds to non-existing directory (${${extProjName}_DIR})")
-endif()
+set(proj VTK)
 
 # Set dependency list
-set(${proj}_DEPENDENCIES "")
-if (${PROJECT_NAME}_USE_PYTHONQT)
-  list(APPEND ${proj}_DEPENDENCIES python)
-endif()
+set(${proj}_DEPENDENCIES
+  Qt${3DMetricTools_QT_VERSION}
+  )
 
 # Include dependent projects if any
-SlicerMacroCheckExternalProjectDependency(${proj})
+ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj DEPENDS_VAR ${proj}_DEPENDENCIES)
 
-if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" ) )
-  #message(STATUS "${__indent}Adding project ${proj}")
+if(${SUPERBUILD_TOPLEVEL_PROJECT}_USE_SYSTEM_${proj})
+  unset(VTK_DIR CACHE)
+  unset(VTK_SOURCE_DIR CACHE)
+  find_package(VTK REQUIRED NO_MODULE)
+endif()
 
-  # Set CMake OSX variable to pass down the external project
-  set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
-  if(APPLE)
-    list(APPEND CMAKE_OSX_EXTERNAL_PROJECT_ARGS
-      -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-      -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-      -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-      -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="")
-  endif()
+# Sanity checks
+if(DEFINED VTK_DIR AND NOT EXISTS ${VTK_DIR})
+  message(FATAL_ERROR "VTK_DIR variable is defined but corresponds to nonexistent directory")
+endif()
 
-  ### --- Project specific additions here
-  set(VTK_WRAP_TCL OFF)
-  set(VTK_WRAP_PYTHON OFF)
+if(DEFINED VTK_SOURCE_DIR AND NOT EXISTS ${VTK_SOURCE_DIR})
+  message(FATAL_ERROR "VTK_SOURCE_DIR variable is defined but corresponds to nonexistent directory")
+endif()
 
-  if (${PROJECT_NAME}_USE_PYTHONQT)
-    set(VTK_WRAP_PYTHON ON)
-  endif()
+if((NOT DEFINED VTK_DIR OR NOT DEFINED VTK_SOURCE_DIR) AND NOT ${SUPERBUILD_TOPLEVEL_PROJECT}_USE_SYSTEM_${proj})
 
-  set(VTK_PYTHON_ARGS)
-  if(${PROJECT_NAME}_USE_PYTHONQT)
-    set(VTK_PYTHON_ARGS
-      -DVTK_INSTALL_PYTHON_USING_CMAKE:BOOL=ON
-      -DPYTHON_EXECUTABLE:PATH=${slicer_PYTHON_EXECUTABLE}
-      -DPYTHON_INCLUDE_DIR:PATH=${slicer_PYTHON_INCLUDE}
-      -DPYTHON_LIBRARY:FILEPATH=${slicer_PYTHON_LIBRARY}
-      )
-  endif()
+  set(EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS)
 
-  set(VTK_QT_ARGS)
-  if(${PRIMARY_PROJECT_NAME}_USE_QT)
-    if(NOT APPLE)
-      set(VTK_QT_ARGS
-        -DVTK_Group_Qt:BOOL=ON
-        -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-        )
-    else()
-      set(VTK_QT_ARGS
-        -DVTK_USE_CARBON:BOOL=OFF
-        # Default to Cocoa, VTK/CMakeLists.txt will enable Carbon and disable cocoa if needed
-        -DVTK_USE_COCOA:BOOL=ON
-        -DVTK_USE_X:BOOL=OFF
-        -DVTK_Group_Qt:BOOL=ON
-        -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-        )
-    endif()
-    find_package(Qt4 REQUIRED)
-  else()
-    set(VTK_QT_ARGS
-        -DVTK_Group_Qt:BOOL=OFF
-        )
-  endif()
-
-  # Disable Tk when Python wrapping is enabled
-  if (${PROJECT_NAME}_USE_PYTHONQT)
-    list(APPEND VTK_QT_ARGS -DVTK_Group_Tk:BOOL=OFF)
-  endif()
-
-  set(slicer_TCL_LIB)
-  set(slicer_TK_LIB)
-  set(slicer_TCLSH)
-  set(VTK_TCL_ARGS)
-  if(VTK_WRAP_TCL)
-    if(WIN32)
-      set(slicer_TCL_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/tcl84.lib)
-      set(slicer_TK_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/tk84.lib)
-      set(slicer_TCLSH ${CMAKE_BINARY_DIR}/tcl-build/bin/tclsh.exe)
-    elseif(APPLE)
-      set(slicer_TCL_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtcl8.4.dylib)
-      set(slicer_TK_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtk8.4.dylib)
-      set(slicer_TCLSH ${CMAKE_BINARY_DIR}/tcl-build/bin/tclsh84)
-    else()
-      set(slicer_TCL_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtcl8.4.so)
-      set(slicer_TK_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtk8.4.so)
-      set(slicer_TCLSH ${CMAKE_BINARY_DIR}/tcl-build/bin/tclsh84)
-    endif()
-    set(VTK_TCL_ARGS
-      -DTCL_INCLUDE_PATH:PATH=${CMAKE_BINARY_DIR}/tcl-build/include
-      -DTK_INCLUDE_PATH:PATH=${CMAKE_BINARY_DIR}/tcl-build/include
-      -DTCL_LIBRARY:FILEPATH=${slicer_TCL_LIB}
-      -DTK_LIBRARY:FILEPATH=${slicer_TK_LIB}
-      -DTCL_TCLSH:FILEPATH=${slicer_TCLSH}
-      )
-  endif()
-
-  set(VTK_BUILD_STEP "")
-  set(${proj}_CMAKE_OPTIONS
-      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
-      -DBUILD_EXAMPLES:BOOL=OFF
-      -DBUILD_TESTING:BOOL=OFF
-      -DVTK_DEBUG_LEAKS:BOOL=${${PROJECT_NAME}_USE_VTK_DEBUG_LEAKS}
-      -DVTK_LEGACY_REMOVE:BOOL=OFF
-      -DVTK_WRAP_TCL:BOOL=${VTK_WRAP_TCL}
-      #-DVTK_USE_RPATH:BOOL=ON # Unused
-      ${VTK_TCL_ARGS}
-      -DVTK_WRAP_PYTHON:BOOL=${VTK_WRAP_PYTHON}
-      ${VTK_PYTHON_ARGS}
-      ${VTK_QT_ARGS}
-      ${VTK_MAC_ARGS}
+  list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+    -DVTK_USE_GUISUPPORT:BOOL=ON
+    -DVTK_USE_QVTK_QTOPENGL:BOOL=ON
+    -DModule_vtkTestingRendering:BOOL=ON
     )
-  ### --- End Project specific additions
-  set(${proj}_REPOSITORY ${git_protocol}://vtk.org/VTK.git)
-  set(${proj}_GIT_TAG "v6.1.0")
+  if(3DMetricTools_QT_VERSION VERSION_LESS "5")
+    set(3DMetricTools_VTK_RENDERING_BACKEND "OpenGL")
+    list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+      -DVTK_QT_VERSION:STRING=4
+      -DVTK_USE_QT:BOOL=ON
+      -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+      )
+  else()
+    set(3DMetricTools_VTK_RENDERING_BACKEND "OpenGL2")
+    list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+      -DVTK_QT_VERSION:STRING=5
+      -DVTK_Group_Qt:BOOL=ON
+      -DQt5_DIR:FILEPATH=${Qt5_DIR}
+      )
+  endif()
+  if("${3DMetricTools_VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+    list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+      -DModule_vtkGUISupportQtOpenGL:BOOL=ON
+    )
+  endif()
+  if(APPLE)
+    list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+      -DVTK_USE_CARBON:BOOL=OFF
+      -DVTK_USE_COCOA:BOOL=ON # Default to Cocoa, VTK/CMakeLists.txt will enable Carbon and disable cocoa if needed
+      -DVTK_USE_X:BOOL=OFF
+      -DVTK_REQUIRED_OBJCXX_FLAGS:STRING=
+      #-DVTK_USE_RPATH:BOOL=ON # Unused
+      )
+  endif()
+  if(UNIX AND NOT APPLE)
+    find_package(FontConfig QUIET)
+    if(FONTCONFIG_FOUND)
+      list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+        -DModule_vtkRenderingFreeTypeFontConfig:BOOL=ON
+        )
+    endif()
+  endif()
+
+  ExternalProject_SetIfNotDefined(
+    ${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_REPOSITORY
+    "${EP_GIT_PROTOCOL}://github.com/slicer/VTK.git"
+    QUIET
+    )
+
+set(_git_tag)
+if("${3DMetricTools_VTK_VERSION_MAJOR}" STREQUAL "7")
+  set(_git_tag "43f6ee36f6e28c8347768bd97df4d767da6b4ce7")
+elseif("${3DMetricTools_VTK_VERSION_MAJOR}" STREQUAL "8")
+  set(_git_tag "75414fe171e5ae2ed6e4df608deb1d578d9ec7c3")
+else()
+  message(FATAL_ERROR "error: Unsupported 3DMetricTools_VTK_VERSION_MAJOR: ${3DMetricTools_VTK_VERSION_MAJOR}")
+endif()
+  ExternalProject_SetIfNotDefined(
+    ${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_TAG
+    ${_git_tag}
+    QUIET
+    )
+
+  set(EP_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
+  set(EP_BINARY_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
+
   ExternalProject_Add(${proj}
-    GIT_REPOSITORY ${${proj}_REPOSITORY}
-    GIT_TAG ${${proj}_GIT_TAG}
-    SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
-    BINARY_DIR ${proj}-build
-    BUILD_COMMAND ${VTK_BUILD_STEP}
-    LOG_CONFIGURE 0  # Wrap configure in script to ignore log output from dashboards
-    LOG_BUILD     0  # Wrap build in script to to ignore log output from dashboards
-    LOG_TEST      0  # Wrap test in script to to ignore log output from dashboards
-    LOG_INSTALL   0  # Wrap install in script to to ignore log output from dashboards
-    ${cmakeversion_external_update} "${cmakeversion_external_update_value}"
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-      ${COMMON_EXTERNAL_PROJECT_ARGS}
-      ${${proj}_CMAKE_OPTIONS}
-## We really do want to install in order to limit # of include paths INSTALL_COMMAND ""
+    ${${proj}_EP_ARGS}
+    GIT_REPOSITORY "${${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_REPOSITORY}"
+    GIT_TAG "${${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_TAG}"
+    SOURCE_DIR ${EP_SOURCE_DIR}
+    BINARY_DIR ${EP_BINARY_DIR}
+    CMAKE_CACHE_ARGS
+      -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+      -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+      -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+      -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+      -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
+      -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}
+      -DCMAKE_CXX_EXTENSIONS:BOOL=${CMAKE_CXX_EXTENSIONS}
+      -DBUILD_TESTING:BOOL=OFF
+      -DBUILD_EXAMPLES:BOOL=OFF
+      -DBUILD_SHARED_LIBS:BOOL=OFF
+      -DVTK_USE_PARALLEL:BOOL=ON
+      -DVTK_DEBUG_LEAKS:BOOL=${VTK_DEBUG_LEAKS}
+      -DVTK_LEGACY_REMOVE:BOOL=ON
+      -DVTK_WRAP_TCL:BOOL=OFF
+      #-DVTK_USE_RPATH:BOOL=ON # Unused
+      -DVTK_WRAP_PYTHON:BOOL=OFF
+      -DVTK_Group_Qt:BOOL=ON
+      -DVTK_USE_SYSTEM_ZLIB:BOOL=OFF
+      -DVTK_ENABLE_KITS:BOOL=ON
+      -DVTK_RENDERING_BACKEND:STRING=${3DMetricTools_VTK_RENDERING_BACKEND}
+      -DVTK_SMP_IMPLEMENTATION_TYPE:STRING=Sequential
+      ${EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS}
+    INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )
 
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-6.1)
+  set(VTK_DIR ${EP_BINARY_DIR})
+  set(VTK_SOURCE_DIR ${EP_SOURCE_DIR})
+
 else()
-  if(${USE_SYSTEM_${extProjName}})
-    find_package(${extProjName} NO_MODULE )
-    if( NOT ${VTK_VERSION} VERSION_EQUAL ${${extProjName}_REQUIRED_VERSION} )
-      if( ${VTK_VERSION} VERSION_LESS ${${extProjName}_REQUIRED_VERSION} )
-        message( FATAL_ERROR "Could not find a configuration file for package \"VTK\" that is compatible with requested version ${${extProjName}_REQUIRED_VERSION}.")
-      else()
-        message( WARNING "Could not find a configuration file for package \"VTK\" that matches exactly the requested version ${${extProjName}_REQUIRED_VERSION}. Using found VTK version ${VTK_VERSION} which is newer instead.")
-      endif()
-    endif()
-    message("USING the system ${extProjName}, set ${extProjName}_DIR=${${extProjName}_DIR}")
-  endif()
-  # The project is provided using ${extProjName}_DIR, nevertheless since other
-  # project may depend on ${extProjName}, let's add an 'empty' one
-  SlicerMacroEmptyExternalProject(${proj} "${${proj}_DEPENDENCIES}")
+  ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDENCIES})
 endif()
 
-list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS ${extProjName}_DIR:PATH)
+mark_as_superbuild(VTK_SOURCE_DIR:PATH)
 
-ProjectDependancyPop(CACHED_extProjName extProjName)
-ProjectDependancyPop(CACHED_proj proj)
+mark_as_superbuild(
+  VARS VTK_DIR:PATH
+  )
